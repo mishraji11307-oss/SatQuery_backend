@@ -3,7 +3,7 @@ SatQuery AI - Query Router & Intent Classifier
 Classifies natural-language queries into remote sensing tasks with confidence & ambiguity handling.
 """
 import re
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from app.core.logging import logger
 
 
