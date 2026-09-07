@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # 1. SatQuery AI FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: satquery_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DEBUG=false
+      - DEMO_MODE=true
+      - DATABASE_URL=postgresql+asyncpg://satquery_user:satquery_pass@postgres:5432/satquery_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=satquery-production-secret-sih26167-jwt-token
+      - UPLOAD_DIR=/app/storage/uploads
+      - EVIDENCE_DIR=/app/storage/evidence
+      - MODEL_CACHE_DIR=/app/storage/models
+      - CORS_ORIGINS=["*"]
+    volumes:
+      - satquery_uploads:/app/storage/uploads
+      - satquery_evidence:/app/storage/evidence
+      - satquery_models:/app/storage/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # 2. Celery Worker (Background AI Inference)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: satquery_worker
+    restart: unless-stopped
+    command: celery -A app.workers.celery_app.celery_app worker --loglevel=info -c 2
+    environment:
+      - APP_ENV=production
+      - DEMO_MODE=true
+      - DATABASE_URL=postgresql+asyncpg://satquery_user:satquery_pass@postgres:5432/satquery_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=satquery-production-secret-sih26167-jwt-token
+      - UPLOAD_DIR=/app/storage/uploads
+      - EVIDENCE_DIR=/app/storage/evidence
+    volumes:
+      - satquery_uploads:/app/storage/uploads
+      - satquery_evidence:/app/storage/evidence
+      - satquery_models:/app/storage/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # 3. PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: satquery_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: satquery_user
+      POSTGRES_PASSWORD: satquery_pass
+      POSTGRES_DB: satquery_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U satquery_user -d satquery_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 4. Redis Queue & Cache
+  redis:
+    image: redis:7-alpine
+    container_name: satquery_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  satquery_uploads:
+  satquery_evidence:
+  satquery_models:
