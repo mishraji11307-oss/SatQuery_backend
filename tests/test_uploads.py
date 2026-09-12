@@ -6,6 +6,16 @@ from httpx import AsyncClient
 
 
 @pytest.mark.asyncio
+async def test_sample_data_catalog_endpoint(client: AsyncClient):
+    res = await client.get("/api/v1/data/samples")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["success"] is True
+    names = {item["name"] for item in body["data"]}
+    assert {"optical_sample.png", "sar_sample.png", "t1_sample.png", "t2_sample.png"}.issubset(names)
+
+
+@pytest.mark.asyncio
 async def test_image_upload_and_metadata_inspection(client: AsyncClient, sample_optical_image: str):
     with open(sample_optical_image, "rb") as f:
         response = await client.post(

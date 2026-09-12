@@ -54,6 +54,11 @@ class Settings(BaseSettings):
     MODEL_DEVICE: str = "cpu"
     MOCK_MODEL_LATENCY: float = 0.3
 
+    # AI Chat Settings
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o-mini"
+    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
+
     # CORS
     CORS_ORIGINS: Union[List[str], str] = ["*"]
 

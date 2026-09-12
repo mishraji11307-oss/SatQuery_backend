@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SatQuery AI - Interactive Vision-Language Assistant for Multimodal Remote Sensing Image Analysis (SIH26167). Single Image VQA, Visual Grounding, Bi-temporal Change Detection, Optical+SAR Fusion.">
+
+    <title>SatQuery AI • Multimodal Remote Sensing Assistant</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Animated background stars -->
+    <div class="stars"></div>
+    <div class="stars stars2"></div>
+    <div class="stars stars3"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo" onclick="goToSlide(1)">
+            <span class="pulse-dot">◉</span>
+            SatQuery <b>AI</b>
+        </div>
+
+        <div class="nav-center">
+            <div class="backend-badge" id="backendStatusBadge" title="Click to refresh connection status" onclick="checkBackendHealth()">
+                <span class="status-indicator ping-pulse" id="statusIndicator"></span>
+                <span id="backendStatusText">Connecting to Backend...</span>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <button class="nav-btn" onclick="openHistoryModal()" id="historyBtn">
+                <span>⏱️</span> History
+            </button>
+            <div class="isro-tag">ISRO • REMOTE SENSING</div>
+        </div>
+    </nav>
+
+
+    <!-- PROGRESS STEPPER -->
+    <div class="progress-container">
+        <div class="step active" data-step="1" onclick="goToSlide(1)">
+            <span>01</span>
+            Introduction
+        </div>
+
+        <div class="progress-line"></div>
+
+        <div class="step" data-step="2" onclick="goToSlide(2)">
+            <span>02</span>
+            Query & Imagery
+        </div>
+
+        <div class="progress-line"></div>
+
+        <div class="step" data-step="3" onclick="goToSlide(3)">
+            <span>03</span>
+            AI Analysis & Evidence
+        </div>
+    </div>
+
+
+    <main>
+
+        <!-- ================= SLIDE 1 ================= -->
+        <section class="slide active-slide" id="slide1">
+            <div class="hero">
+                <div class="badge">
+                    🚀 SIH26167 • VISION-LANGUAGE REMOTE SENSING
+                </div>
+
+                <h1>
+                    SATQUERY
+                    <span>AI</span>
+                </h1>
+
+                <h2>
+                    Ask Questions. Reason Over Satellite Imagery.
+                </h2>
+
+                <p>
+                    An interactive, specialist-driven AI assistant for multimodal remote sensing.
+                    Execute single-image VQA, open-vocabulary visual grounding, coregistered bi-temporal change detection, and optical + SAR fusion.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="quickStartTask('vqa')">
+                        <div class="feature-icon">🛰️</div>
+                        <h3>Single-Image RS-VQA</h3>
+                        <p>
+                            Ask natural language questions about land cover, infrastructure, environmental hazards, and spatial geometry.
+                        </p>
+                        <span class="feature-tag">GeoCLIP ViT-L</span>
+                    </div>
+
+                    <div class="feature-card" onclick="quickStartTask('grounding')">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Visual Grounding</h3>
+                        <p>
+                            Localize specific targets, aircraft, runways, tanks, and vessels with precise bounding box coordinates.
+                        </p>
+                        <span class="feature-tag">Grounding DINO</span>
+                    </div>
+
+                    <div class="feature-card" onclick="quickStartTask('change')">
+                        <div class="feature-icon">🔄</div>
+                        <h3>Bi-Temporal Change</h3>
+                        <p>
+                            Coregister T1 & T2 acquisitions, detect pixel and semantic changes, and generate visual difference heatmaps.
+                        </p>
+                        <span class="feature-tag">ChangeFormer V2</span>
+                    </div>
+
+                    <div class="feature-card" onclick="quickStartTask('fusion')">
+                        <div class="feature-icon">📡</div>
+                        <h3>Optical + SAR Fusion</h3>
+                        <p>
+                            All-weather multi-sensor fusion combining optical spectral reflectance and SAR polarimetric radar backscatter.
+                        </p>
+                        <span class="feature-tag">CrossModal OptSAR</span>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button class="main-btn" onclick="goToSlide(2)">
+                        GET STARTED
+                        <span>→</span>
+                    </button>
+                    <button class="secondary-btn" onclick="loadPreset('vqa')">
+                        ⚡ Quick Demo: Single VQA
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SLIDE 2 ================= -->
+        <section class="slide" id="slide2">
+            <div class="query-page">
+
+                <div class="page-heading">
+                    <div class="badge">
+                        STEP 02 • MULTIMODAL QUERY & IMAGERY
+                    </div>
+                    <h2>
+                        Provide Imagery & Query SatQuery AI
+                    </h2>
+                    <p>
+                        Upload custom GeoTIFF/PNG rasters or load pre-calibrated sample acquisitions below.
+                    </p>
+                </div>
+
+                <!-- 1-CLICK DEMO PRESETS -->
+                <div class="preset-section">
+                    <div class="preset-header">
+                        <span>⚡ 1-Click Interactive Demo Presets:</span>
+                    </div>
+                    <div class="preset-chips">
+                        <button class="preset-chip" onclick="loadPreset('vqa')">
+                            🛰️ Single-Image VQA
+                        </button>
+                        <button class="preset-chip" onclick="loadPreset('grounding')">
+                            🎯 Visual Grounding
+                        </button>
+                        <button class="preset-chip" onclick="loadPreset('change')">
+                            🔄 Change Detection (T1 vs T2)
+                        </button>
+                        <button class="preset-chip" onclick="loadPreset('fusion')">
+                            📡 Optical + SAR Fusion
+                        </button>
+                    </div>
+                </div>
+
+                <!-- IMAGE UPLOADS GRID -->
+                <div class="upload-grid">
+
+                    <!-- PRIMARY IMAGE -->
+                    <div class="upload-card" id="uploadCard1">
+                        <div class="card-top">
+                            <h3>🛰️ Primary Acquisition</h3>
+                            <div class="modality-select-wrap">
+                                <label for="modality1">Modality:</label>
+                                <select id="modality1" onchange="onModalityChange(1)">
+                                    <option value="optical" selected>Optical / RGB</option>
+                                    <option value="sar">SAR Microwave</option>
+                                    <option value="multispectral">Multispectral</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="upload-box" for="image1" id="uploadBox1">
+                            <div id="placeholder1">
+                                <div class="upload-icon">⬆</div>
+                                <strong>Click or Drag to Upload Raster</strong>
+                                <small>Supports GeoTIFF (.tif), PNG, JPG, JP2 (Up to 50MB)</small>
+                            </div>
+                            <img id="preview1" class="image-preview" alt="Primary Preview">
+                        </label>
+
+                        <input type="file" id="image1" accept="image/*,.tif,.tiff,.jp2" hidden onchange="handleFileSelect(event, 1)">
+
+                        <!-- Metadata Badges -->
+                        <div class="metadata-tray" id="metaTray1" style="display: none;">
+                            <div class="meta-pill" id="metaDim1">512×512</div>
+                            <div class="meta-pill" id="metaCrs1">CRS: EPSG:4326</div>
+                            <div class="meta-pill" id="metaBands1">3 Bands</div>
+                            <div class="meta-pill" id="metaGeo1">Georeferenced ✓</div>
+                            <button class="meta-clear-btn" onclick="clearImage(1)" title="Remove Image">✕</button>
+                        </div>
+                    </div>
+
+
+                    <!-- COMPARISON IMAGE -->
+                    <div class="upload-card" id="uploadCard2">
+                        <div class="card-top">
+                            <h3>
+                                🛰️ Secondary / Comparison Acquisition
+                                <span class="optional">(Optional / T2 / SAR)</span>
+                            </h3>
+                            <div class="modality-select-wrap">
+                                <label for="modality2">Modality:</label>
+                                <select id="modality2" onchange="onModalityChange(2)">
+                                    <option value="optical">Optical / RGB</option>
+                                    <option value="sar">SAR Microwave</option>
+                                    <option value="multispectral">Multispectral</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="upload-box" for="image2" id="uploadBox2">
+                            <div id="placeholder2">
+                                <div class="upload-icon">⬆</div>
+                                <strong>Add Second Raster for Change / Fusion</strong>
+                                <small>T2 Temporal Acquisition or SAR Backscatter</small>
+                            </div>
+                            <img id="preview2" class="image-preview" alt="Comparison Preview">
+                        </label>
+
+                        <input type="file" id="image2" accept="image/*,.tif,.tiff,.jp2" hidden onchange="handleFileSelect(event, 2)">
+
+                        <!-- Metadata Badges -->
+                        <div class="metadata-tray" id="metaTray2" style="display: none;">
+                            <div class="meta-pill" id="metaDim2">512×512</div>
+                            <div class="meta-pill" id="metaCrs2">CRS: EPSG:4326</div>
+                            <div class="meta-pill" id="metaBands2">3 Bands</div>
+                            <div class="meta-pill" id="metaGeo2">Georeferenced ✓</div>
+                            <button class="meta-clear-btn" onclick="clearImage(2)" title="Remove Image">✕</button>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- QUESTION & PROMPT -->
+                <div class="question-card">
+                    <div class="question-header">
+                        <label for="question">
+                            💬 Natural Language Remote Sensing Query
+                        </label>
+                        <span class="hint-text">Ask about objects, land use, changes, or cross-modal synthesis</span>
+                    </div>
+
+                    <div class="input-wrap">
+                        <input
+                            type="text"
+                            id="question"
+                            placeholder="e.g. What changes can you observe between these images? OR Where are the runways located?"
+                            onkeydown="if(event.key==='Enter') analyzeImages()"
+                        >
+                        <button class="input-clear" onclick="document.getElementById('question').value=''" title="Clear Query">✕</button>
+                    </div>
+
+                    <div class="suggestions-label">Suggested Queries:</div>
+                    <div class="suggestions">
+                        <button onclick="setQuestion('What type of environment and infrastructure is visible in this satellite imagery?')">
+                            🌿 Scene & Land Cover
+                        </button>
+                        <button onclick="setQuestion('Where are the buildings and runway targets located?')">
+                            🎯 Localize Structures / Grounding
+                        </button>
+                        <button onclick="setQuestion('What changed between T1 and T2 imagery?')">
+                            🔄 Detect Temporal Changes
+                        </button>
+                        <button onclick="setQuestion('Perform joint optical and SAR analysis to inspect terrain penetration')">
+                            📡 Optical + SAR Fusion
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- ACTION BUTTONS -->
+                <div class="action-buttons">
+                    <button class="secondary-btn" onclick="goToSlide(1)">
+                        ← BACK
+                    </button>
+                    <button class="main-btn" id="analyzeBtn" onclick="analyzeImages()">
+                        <span id="analyzeBtnText">EXECUTE SATQUERY AI</span>
+                        <span id="analyzeBtnIcon">→</span>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= SLIDE 3 ================= -->
+        <section class="slide" id="slide3">
+            <div class="results-page">
+
+                <div class="page-heading">
+                    <div class="badge" id="resultsHeaderBadge">
+                        STEP 03 • AI MULTIMODAL REASONING & EVIDENCE
+                    </div>
+                    <h2>
+                        SatQuery AI Analysis Results
+                    </h2>
+                    <p>
+                        Comprehensive remote sensing reasoning, calibrated confidence, and generated spatial evidence.
+                    </p>
+                </div>
+
+
+                <!-- STATUS & PIPELINE BANNER -->
+                <div class="status-card" id="statusCard">
+                    <div class="status-icon" id="statusIcon">
+                        ✓
+                    </div>
+                    <div class="status-info">
+                        <div class="status-title-row">
+                            <strong id="analysisStatus">Analysis Complete</strong>
+                            <span class="task-badge" id="taskBadge">Single Image VQA</span>
+                        </div>
+                        <span id="analysisMeta">Executed in 120ms • All models verified</span>
+                    </div>
+                </div>
+
+
+                <!-- USER QUERY RECAP -->
+                <div class="result-card query-recap-card">
+                    <div class="result-label">
+                        YOUR QUERY
+                    </div>
+                    <div class="question-result" id="questionResult">
+                        —
+                    </div>
+                </div>
+
+
+                <!-- MAIN AI ANSWER -->
+                <div class="result-card main-result">
+                    <div class="card-header-row">
+                        <div class="result-label">
+                            🤖 AI MULTIMODAL SYNTHESIS & REASONING
+                        </div>
+                        <span class="tool-tag" id="selectedToolTag">Tool: GeoCLIP ViT-L</span>
+                    </div>
+
+                    <div class="result-text" id="resultText">
+                        SatQuery AI is processing your remote sensing request...
+                    </div>
+                </div>
+
+
+                <!-- CONFIDENCE ASSESSMENT CARD -->
+                <div class="result-card confidence-card">
+                    <div class="card-header-row">
+                        <div class="result-label">
+                            📊 CALIBRATED CONFIDENCE ASSESSMENT
+                        </div>
+                        <span class="conf-level-badge level-high" id="confLevelBadge">HIGH CONFIDENCE</span>
+                    </div>
+
+                    <div class="conf-body-grid">
+                        <div class="conf-meter-col">
+                            <div class="conf-score-large" id="confScoreLarge">91%</div>
+                            <div class="conf-score-label">Calibrated Score</div>
+                            <div class="conf-progress-bar">
+                                <div class="conf-progress-fill" id="confProgressFill" style="width: 91%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="conf-factors-col">
+                            <strong>Validation Factors:</strong>
+                            <ul class="conf-factors-list" id="confFactorsList">
+                                <li>Spatial CRS alignment verified</li>
+                                <li>Multi-band spectral signature consistent</li>
+                                <li>Specialist model consensus achieved</li>
+                            </ul>
+
+                            <div class="cross-modal-row" id="crossModalRow" style="display: none;">
+                                <span class="cross-label">Cross-Modal Agreement:</span>
+                                <span class="cross-val" id="crossModalVal">HIGH</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- VISUAL EVIDENCE GALLERY -->
+                <div class="result-card evidence-card" id="evidenceSection">
+                    <div class="card-header-row">
+                        <div class="result-label">
+                            🔍 GENERATED VISUAL EVIDENCE & SPATIAL OVERLAYS
+                        </div>
+                        <span class="evidence-count-badge" id="evidenceCountBadge">0 Artifacts</span>
+                    </div>
+
+                    <div class="evidence-grid" id="evidenceGrid">
+                        <!-- Dynamically filled with evidence cards -->
+                    </div>
+                </div>
+
+
+                <!-- METRICS GRID -->
+                <div class="analysis-grid">
+                    <div class="detail-card">
+                        <span class="detail-icon">🛰️</span>
+                        <div>
+                            <small>IMAGES ANALYZED</small>
+                            <strong id="imageCount">1</strong>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <span class="detail-icon">⚙️</span>
+                        <div>
+                            <small>EXECUTION LATENCY</small>
+                            <strong id="execLatency">0 ms</strong>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <span class="detail-icon">🧠</span>
+                        <div>
+                            <small>PIPELINE MODE</small>
+                            <strong id="pipelineMode">Specialist Ensemble</strong>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- EXECUTION TRACE TELEMETRY (COLLAPSIBLE) -->
+                <div class="result-card trace-card">
+                    <div class="trace-header" onclick="toggleTraceAccordion()">
+                        <div class="result-label">
+                            📈 PIPELINE EXECUTION TRACE & TELEMETRY
+                        </div>
+                        <span class="trace-toggle-btn" id="traceToggleIcon">▼</span>
+                    </div>
+
+                    <div class="trace-content" id="traceContent" style="display: none;">
+                        <div class="trace-timeline" id="traceTimeline">
+                            <!-- Trace items added dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- ACTION BUTTONS -->
+                <div class="action-buttons">
+                    <button class="secondary-btn" onclick="goBackToQuery()">
+                        ← MODIFY QUERY
+                    </button>
+                    <button class="main-btn" onclick="resetApp()">
+                        ↻ NEW ANALYSIS
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- ================= LIGHTBOX MODAL ================= -->
+    <div class="modal-overlay" id="lightboxModal" onclick="closeLightbox(event)">
+        <div class="lightbox-container" onclick="event.stopPropagation()">
+            <div class="lightbox-header">
+                <span id="lightboxTitle">Visual Evidence Inspection</span>
+                <button class="modal-close-btn" onclick="closeLightbox()">✕</button>
+            </div>
+            <div class="lightbox-image-wrap">
+                <img id="lightboxImg" src="" alt="High resolution evidence">
+            </div>
+            <div class="lightbox-caption" id="lightboxCaption"></div>
+        </div>
+    </div>
+
+
+    <!-- ================= HISTORY MODAL ================= -->
+    <div class="modal-overlay" id="historyModal" onclick="closeHistoryModal(event)">
+        <div class="history-container" onclick="event.stopPropagation()">
+            <div class="lightbox-header">
+                <span>⏱️ Remote Sensing Analysis Audit History</span>
+                <button class="modal-close-btn" onclick="closeHistoryModal()">✕</button>
+            </div>
+            <div class="history-body" id="historyBody">
+                <div class="history-loading">Loading audit records from database...</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+
+    <!-- FOOTER -->
+    <footer>
+        SatQuery AI • SIH26167 Interactive Vision-Language Assistant for Multimodal Remote Sensing
+    </footer>
+
+    <script src="script.js"></script>
+    <!-- ================= SATQUERY AI CHATBOX ================= -->
+
+<!-- Floating Chat Button -->
+<button id="satChatToggle" class="sat-chat-toggle" type="button"
+        aria-label="Open SatQuery AI Assistant">
+    <span class="sat-chat-icon">🤖</span>
+    <span class="sat-chat-label">AI Assistant</span>
+</button>
+
+<!-- Chat Window -->
+<div id="satChatWindow" class="sat-chat-window">
+
+    <!-- Header -->
+    <div class="sat-chat-header">
+
+        <div class="sat-chat-title">
+            <div class="sat-chat-avatar">🛰️</div>
+
+            <div>
+                <strong>SatQuery AI</strong>
+                <small>
+                    <span class="sat-online-dot"></span>
+                    AI Assistant
+                </small>
+            </div>
+        </div>
+
+        <button id="satChatClose"
+                class="sat-chat-close"
+                type="button"
+                aria-label="Close chat">
+            ×
+        </button>
+
+    </div>
+
+
+    <!-- Messages -->
+    <div id="satChatMessages" class="sat-chat-messages">
+
+        <!-- Initial AI message -->
+        <div class="sat-message sat-message-ai">
+            <div class="sat-message-avatar">🛰️</div>
+
+            <div class="sat-message-content">
+                <div class="sat-message-name">SatQuery AI</div>
+
+                <div class="sat-message-bubble">
+                    Hello! 👋 I'm your SatQuery AI assistant.
+                    <br><br>
+                    Ask me anything about satellite imagery,
+                    remote sensing, SAR, optical imagery,
+                    change detection, or your SatQuery project.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Typing indicator -->
+    <div id="satChatTyping" class="sat-chat-typing">
+        <span></span>
+        <span></span>
+        <span></span>
+        <label>SatQuery AI is thinking...</label>
+    </div>
+
+
+    <!-- Input -->
+    <div class="sat-chat-input-area">
+
+        <textarea
+            id="satChatInput"
+            rows="1"
+            placeholder="Ask SatQuery AI..."
+            maxlength="2000"></textarea>
+
+        <button
+            id="satChatSend"
+            class="sat-chat-send"
+            type="button"
+            aria-label="Send message">
+            ➤
+        </button>
+
+    </div>
+
+    <div class="sat-chat-footer">
+        AI responses may require verification.
+    </div>
+
+</div>
+
+<!-- END SATQUERY AI CHATBOX -->
+
+</body>
+
+</html>

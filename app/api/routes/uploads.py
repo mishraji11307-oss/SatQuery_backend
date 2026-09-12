@@ -2,6 +2,8 @@
 SatQuery AI - Imagery Upload & Metadata Management APIs
 """
 import os
+import uuid
+import shutil
 from typing import Optional, List
 from fastapi import APIRouter, Depends, UploadFile, File, Form, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,9 +15,93 @@ from app.services.metadata_service import MetadataService
 from app.schemas.response import APIResponse
 from app.schemas.upload import UploadResponse, ImageMetadataSchema, UploadListResponse
 from app.api.dependencies import get_optional_user
+from app.core.config import settings
 from app.core.exceptions import EntityNotFoundError
 
 router = APIRouter(prefix="/uploads", tags=["Imagery Uploads"])
+
+
+@router.post("/sample/{sample_name}", response_model=APIResponse[UploadResponse], status_code=status.HTTP_201_CREATED)
+async def load_sample_satellite_image(
+    sample_name: str,
+    request: Request,
+    modality: Optional[str] = Form(None),
+    tag: Optional[str] = Form(None),
+    current_user: Optional[User] = Depends(get_optional_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Loads a pre-bundled sample remote sensing image from sample_data,
+    copies it into the storage upload directory, extracts metadata,
+    and returns rich geospatial metadata for demo presets.
+    """
+    sample_dir = os.path.join(settings.BASE_DIR, "sample_data")
+    sample_path = os.path.join(sample_dir, sample_name)
+    if not os.path.exists(sample_path) or not os.path.isfile(sample_path):
+        raise EntityNotFoundError("SampleImage", sample_name)
+
+    # Copy to uploads directory with unique ID
+    ext = os.path.splitext(sample_name)[1].lstrip(".").lower()
+    unique_name = f"{uuid.uuid4().hex}_{sample_name}"
+    target_path = os.path.join(settings.UPLOAD_DIR, unique_name)
+    shutil.copy2(sample_path, target_path)
+    size_bytes = os.path.getsize(target_path)
+
+    # Extract geospatial metadata
+    meta = MetadataService.extract_image_metadata(target_path, original_filename=sample_name)
+    final_modality = modality if modality else meta.get("modality", "optical")
+    meta["modality"] = final_modality
+
+    # Store in DB
+    upload_repo = UploadRepository(db)
+    user_id = current_user.id if current_user else None
+
+    img_record = await upload_repo.create(
+        original_filename=sample_name,
+        storage_path=target_path,
+        file_size_bytes=size_bytes,
+        mime_type=f"image/{ext}",
+        file_format=ext,
+        modality=final_modality,
+        tag=tag,
+        user_id=user_id,
+        metadata_dict=meta
+    )
+
+    meta_schema = ImageMetadataSchema(
+        width=meta.get("width", 0),
+        height=meta.get("height", 0),
+        num_bands=meta.get("num_bands", 1),
+        dtype=meta.get("dtype", "uint8"),
+        crs=meta.get("crs"),
+        transform=meta.get("transform"),
+        bounds=meta.get("bounds"),
+        resolution_x=meta.get("resolution_x"),
+        resolution_y=meta.get("resolution_y"),
+        acquisition_date=meta.get("acquisition_date"),
+        sensor=meta.get("sensor"),
+        is_georeferenced=meta.get("is_georeferenced", False),
+        extra_metadata=meta.get("extra_metadata")
+    )
+
+    rel_filename = os.path.basename(target_path)
+    preview_url = f"/storage/uploads/{rel_filename}"
+
+    res = UploadResponse(
+        id=img_record.id,
+        original_filename=img_record.original_filename,
+        file_size_bytes=img_record.file_size_bytes,
+        mime_type=img_record.mime_type,
+        file_format=img_record.file_format,
+        modality=img_record.modality,
+        tag=img_record.tag,
+        created_at=img_record.created_at,
+        metadata=meta_schema,
+        preview_url=preview_url
+    )
+
+    request_id = getattr(request.state, "request_id", "unknown")
+    return APIResponse(success=True, data=res, request_id=request_id)
 
 
 @router.post("", response_model=APIResponse[UploadResponse], status_code=status.HTTP_201_CREATED)
